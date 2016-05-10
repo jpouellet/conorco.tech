@@ -32,53 +32,6 @@ body {
 </style>
 
 <script>
-function Box(l,w,h) {
-	var box = document.createElement('div');
-	box.className = 'box';
-	var sides = {
-		left: {w: l, h: h, xform: 'T3d(-W,-H,-L) RY(-90D)'},
-		right: {w: l, h: h, xform: 'T3d(W,-H,L) RY(90D)'},
-		front: {w: w, h: h, xform: 'T3d(-W,-H,L)'},
-		back: {w: w, h: h, xform: 'T3d(W,-H,-L) RY(180D)'},
-		top: {w: w, h: l, xform: 'T3d(-W,-H,-L) RX(90D)'},
-		bottom: {w: w, h: l, xform: 'T3d(-W,H,L) RX(-90D)'},
-	};
-	for (name in sides) {
-		var side = sides[name];
-
-		side.canvas = document.createElement('div');
-		//side.canvas = document.createElement('canvas');
-		side.canvas.style.width = side.w+'px';
-		side.canvas.style.height = side.h+'px';
-		//side.canvas.width = side.w;
-		//side.canvas.height = side.h;
-		side.canvas.className = name;
-		//side.ctx = side.canvas.getContext('2d');
-		side.canvas.textContent = '['+name+']';
-
-		function replaceMap(str, map) {
-			for (s in map)
-				str = str.replace(s, map[s]);
-			return str;
-		}
-
-		if (side.xform) {
-			side.canvas.style.transform = replaceMap(side.xform, {
-				R: 'rotate',
-				T: 'translate',
-				D: 'deg',
-				L: (l/2) + 'px',
-				W: (w/2) + 'px',
-				H: (h/2) + 'px',
-			});
-		}
-
-		box.appendChild(side.canvas);
-	}
-	box.sides = sides;
-	return box;
-}
-
 /* Chooses a random point inside a unit-sphere. (Not normalized to the surface.) */
 function randSphere() {
 	/* too slow */
@@ -110,23 +63,82 @@ function randRot3d(angle) {
 	return 'rotate3d('+vector+', '+angle+')';
 }
 
+function Box(l,w,h) {
+	this.box = document.createElement('div');
+	this.box.className = 'box';
+	this.sides = {
+		left: {w: l, h: h, xform: 'T3d(-W,-H,-L) RY(-90D)'},
+		right: {w: l, h: h, xform: 'T3d(W,-H,L) RY(90D)'},
+		front: {w: w, h: h, xform: 'T3d(-W,-H,L)'},
+		back: {w: w, h: h, xform: 'T3d(W,-H,-L) RY(180D)'},
+		top: {w: w, h: l, xform: 'T3d(-W,-H,-L) RX(90D)'},
+		bottom: {w: w, h: l, xform: 'T3d(-W,H,L) RX(-90D)'},
+	};
+	for (name in this.sides) {
+		var side = this.sides[name];
+
+		side.canvas = document.createElement('div');
+		//side.canvas = document.createElement('canvas');
+		side.canvas.style.width = side.w+'px';
+		side.canvas.style.height = side.h+'px';
+		//side.canvas.width = side.w;
+		//side.canvas.height = side.h;
+		side.canvas.className = name;
+		//side.ctx = side.canvas.getContext('2d');
+		side.canvas.textContent = '['+name+']';
+
+		function replaceMap(str, map) {
+			for (s in map)
+				str = str.replace(s, map[s]);
+			return str;
+		}
+
+		if (side.xform) {
+			side.canvas.style.transform = replaceMap(side.xform, {
+				R: 'rotate',
+				T: 'translate',
+				D: 'deg',
+				L: (l/2) + 'px',
+				W: (w/2) + 'px',
+				H: (h/2) + 'px',
+			});
+		}
+
+		this.box.appendChild(side.canvas);
+	}
+}
+Box.prototype.reorient = function() {
+	this.baseTransformation = randRot3d();
+	if (!this.box.style.transform)
+		this.box.style.transform = this.baseTransformation;
+};
+Box.prototype.spin = function(hz) {
+	var otherTransforms = '';
+	[this.baseTransformation].forEach(function(x) {
+		if (x) otherTransforms += ' ' + x;
+	});
+	var spin = this.box.animate([
+		{transform: randRot3d('0turn') + otherTransforms},
+		{transform: randRot3d('1turn') + otherTransforms}
+	], {duration: 1000 / hz, iterations: Infinity});
+	return spin;
+};
+
 addEventListener('click', function(e) {
 	function randLWH() { return (Math.random() * 2 + 1) * 100; }
 	var box = new Box(randLWH(), randLWH(), randLWH());
 
-	box.style.left = e.clientX+'px';
-	box.style.top = e.clientY+'px';
+	box.box.style.left = e.clientX+'px';
+	box.box.style.top = e.clientY+'px';
 
-	var offset = randRot3d();
 	var hz = (Math.random()/2 + Math.random()) * Math.random();
 
-	var spin = box.animate([
-		{transform: [randRot3d('0turn'), offset].join(' ')},
-		{transform: [randRot3d('1turn'), offset].join(' ')}
-	], {duration: 1000 / hz, iterations: Infinity});
+	box.reorient();
+	box.spin(hz);
 
-	document.body.appendChild(box);
+	document.body.appendChild(box.box);
 });
+
 </script>
 
 </head>
