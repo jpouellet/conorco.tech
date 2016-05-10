@@ -16,50 +16,73 @@ body {
 	position: relative;
 	margin: auto;
 	margin-top: 200px;
-	width: 200px;
+	width: 0px;
 	transform-style: preserve-3d;
-	transform-origin: 100px 100px;
 }
-.box div {
+.box > * {
 	backface-visibility: hidden;
 	position: absolute;
-	width: 200px;
-	height: 200px;
 	text-align: center;
-	line-height: 200px;
+	transform-origin: top left;
 }
 
-.back {
-	transform: translateZ(-100px) rotateY(180deg);
-	background: rgba(255, 255, 0, 0.75);
-}
-.right {
-	transform: rotateY(-270deg) translateX(100px);
-	transform-origin: top right;
-	background: rgba(0, 255, 255, 0.75);
-}
-.left {
-	transform: rotateY(270deg) translateX(-100px);
-	transform-origin: center left;
-	background: rgba(0, 0, 255, 0.75);
-}
-.top {
-	transform: rotateX(90deg) translateY(-100px);
-	transform-origin: top center;
-	background: rgba(255, 0, 0, 0.75);
-}
-.bottom {
-	transform: rotateX(-90deg) translateY(100px);
-	transform-origin: bottom center;
-	background: rgba(255, 0, 255, 0.75);
-}
-.front {
-	transform: translateZ(100px);
-	background: rgba(0, 255, 0, 0.75);
-}
+.left	{ background: #f00; }
+.right	{ background: #700; }
+.front	{ background: #0f0; }
+.back	{ background: #070; }
+.top	{ background: #00f; }
+.bottom	{ background: #77f; }
 </style>
 
 <script>
+function Box(l,w,h) {
+	var box = document.createElement('div');
+	box.className = 'box';
+	box.style.border = '2px solid blue';
+	var sides = {
+		left: {w: l, h: h, xform: 'T3d(-W,-H,-L) RY(-90D)'},
+		right: {w: l, h: h, xform: 'T3d(W,-H,L) RY(90D)'},
+		front: {w: w, h: h, xform: 'T3d(-W,-H,L)'},
+		back: {w: w, h: h, xform: 'T3d(W,-H,-L) RY(180D)'},
+		top: {w: w, h: l, xform: 'T3d(-W,-H,-L) RX(90D)'},
+		bottom: {w: w, h: l, xform: 'T3d(-W,H,L) RX(-90D)'},
+	};
+	for (name in sides) {
+		var side = sides[name];
+
+		side.canvas = document.createElement('div');
+		//side.canvas = document.createElement('canvas');
+		side.canvas.style.width = side.w+'px';
+		side.canvas.style.height = side.h+'px';
+		//side.canvas.width = side.w;
+		//side.canvas.height = side.h;
+		side.canvas.className = name;
+		//side.ctx = side.canvas.getContext('2d');
+		side.canvas.textContent = '['+name+']';
+
+		function replaceMap(str, map) {
+			for (s in map)
+				str = str.replace(s, map[s]);
+			return str;
+		}
+
+		if (side.xform) {
+			side.canvas.style.transform = replaceMap(side.xform, {
+				R: 'rotate',
+				T: 'translate',
+				D: 'deg',
+				L: (l/2) + 'px',
+				W: (w/2) + 'px',
+				H: (h/2) + 'px',
+			});
+		}
+
+		box.appendChild(side.canvas);
+	}
+	box.sides = sides;
+	return box;
+}
+
 /* Chooses a random point inside a unit-sphere. (Not normalized to the surface.) */
 function randSphere() {
 	/* too slow */
@@ -92,31 +115,23 @@ function randRot3d(angle) {
 }
 
 addEventListener('DOMContentLoaded', function() {
-	var box = document.querySelector('.box');
+	var box = new Box(300, 200, 100);
+	document.body.appendChild(box);
 
 	var offset = randRot3d();
-	var hz = Math.random()/2 + Math.random()*2;
+	var hz = (Math.random()/2 + Math.random()) * Math.random();
 
 	var spin = box.animate([
 		{transform: [randRot3d('0turn'), offset].join(' ')},
 		{transform: [randRot3d('1turn'), offset].join(' ')}
-	], {duration: 1000 / hz + 3000, iterations: Infinity});
+	], {duration: 1000 / hz, iterations: Infinity});
 });
 </script>
 
 </head>
 <body>
 
-<h1 style="text-align: center;">Coming soon!<sup>&trade;</sup> (gh-pages?)</h1>
-
-<div class="box">
-	<div class="front">front</div>
-	<div class="back">back</div>
-	<div class="top">top</div>
-	<div class="bottom">bottom</div>
-	<div class="left">left</div>
-	<div class="right">right</div>
-</div>
+<h1 style="text-align: center;">Coming soon!<sup>&trade;</sup></h1>
 
 </body>
 </html>
