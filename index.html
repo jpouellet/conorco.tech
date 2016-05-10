@@ -115,7 +115,8 @@ function randRot3d(angle) {
 }
 
 addEventListener('DOMContentLoaded', function() {
-	var box = new Box(300, 200, 100);
+	function randLWH() { return (Math.random() * 2 + 1) * 100; }
+	var box = new Box(randLWH(), randLWH(), randLWH());
 	document.body.appendChild(box);
 
 	var offset = randRot3d();
