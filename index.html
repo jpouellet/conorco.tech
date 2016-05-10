@@ -1,1 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>ConorCo Solutions Ltd.</title>
+
+<style>
+body {
+	perspective: 1200px;
+	perspective-origin: 50% 100px;
+	height: 300px;
+	margin: 50px;
+	position: relative;
+}
+.box {
+	position: relative;
+	margin: auto;
+	margin-top: 200px;
+	width: 200px;
+	transform-style: preserve-3d;
+	transform-origin: 100px 100px;
+}
+.box div {
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	text-align: center;
+	line-height: 200px;
+}
+
+.back {
+	transform: translateZ(-100px) rotateY(180deg);
+	background: rgba(255, 255, 0, 0.75);
+}
+.right {
+	transform: rotateY(-270deg) translateX(100px);
+	transform-origin: top right;
+	background: rgba(0, 255, 255, 0.75);
+}
+.left {
+	transform: rotateY(270deg) translateX(-100px);
+	transform-origin: center left;
+	background: rgba(0, 0, 255, 0.75);
+}
+.top {
+	transform: rotateX(90deg) translateY(-100px);
+	transform-origin: top center;
+	background: rgba(255, 0, 0, 0.75);
+}
+.bottom {
+	transform: rotateX(-90deg) translateY(100px);
+	transform-origin: bottom center;
+	background: rgba(255, 0, 255, 0.75);
+}
+.front {
+	transform: translateZ(100px);
+	background: rgba(0, 255, 0, 0.75);
+}
+
+@keyframes spin {
+	from { transform: rotate3d(1, 1, 1, 0); }
+	to { transform: rotate3d(1, 1, 1, 360deg); }
+}
+.box {
+	animation: spin 3s infinite linear;
+}
+</style>
+
+</head>
+<body>
+
 <h1 style="text-align: center;">Coming soon!<sup>&trade;</sup> (gh-pages?)</h1>
+
+<div class="box">
+	<div class="front">front</div>
+	<div class="back">back</div>
+	<div class="top">top</div>
+	<div class="bottom">bottom</div>
+	<div class="left">left</div>
+	<div class="right">right</div>
+</div>
+
+</body>
+</html>
