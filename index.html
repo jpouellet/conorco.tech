@@ -21,6 +21,7 @@ body {
 	transform-origin: 100px 100px;
 }
 .box div {
+	backface-visibility: hidden;
 	position: absolute;
 	width: 200px;
 	height: 200px;
@@ -56,15 +57,52 @@ body {
 	transform: translateZ(100px);
 	background: rgba(0, 255, 0, 0.75);
 }
-
-@keyframes spin {
-	from { transform: rotate3d(1, 1, 1, 0); }
-	to { transform: rotate3d(1, 1, 1, 360deg); }
-}
-.box {
-	animation: spin 3s infinite linear;
-}
 </style>
+
+<script>
+/* Chooses a random point inside a unit-sphere. (Not normalized to the surface.) */
+function randSphere() {
+	/* too slow */
+	/*
+	var phi = Math.random() * 2 * Math.PI;
+	var costheta = Math.random() * 2 - 1;
+	var theta = Math.acos(costheta);
+	var x = Math.sin(theta) * Math.cos(phi);
+	var y = Math.sin(theta) * Math.sin(phi);
+	var z = costheta;
+	return [x, y, z];
+	*/
+
+	/* non-deterministic runtime, but empirically faster */
+	var x, y, z, mag;
+	do {
+		x = Math.random() * 2 - 1;
+		y = Math.random() * 2 - 1;
+		z = Math.random() * 2 - 1;
+		mag = x*x + y*y + z*z;
+	} while (mag >= 1);
+	return [x, y, z];
+}
+
+function randRot3d(angle) {
+	var vector = randSphere().join(', ');
+	if (angle === undefined)
+		angle = Math.random() / 2 + 'turn';
+	return 'rotate3d('+vector+', '+angle+')';
+}
+
+addEventListener('DOMContentLoaded', function() {
+	var box = document.querySelector('.box');
+
+	var offset = randRot3d();
+	var hz = Math.random()/2 + Math.random()*2;
+
+	var spin = box.animate([
+		{transform: [randRot3d('0turn'), offset].join(' ')},
+		{transform: [randRot3d('1turn'), offset].join(' ')}
+	], {duration: 1000 / hz + 3000, iterations: Infinity});
+});
+</script>
 
 </head>
 <body>
