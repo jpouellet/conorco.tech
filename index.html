@@ -77,15 +77,11 @@ function Box(l,w,h) {
 	for (name in this.sides) {
 		var side = this.sides[name];
 
-		side.canvas = document.createElement('div');
-		//side.canvas = document.createElement('canvas');
-		side.canvas.style.width = side.w+'px';
-		side.canvas.style.height = side.h+'px';
-		//side.canvas.width = side.w;
-		//side.canvas.height = side.h;
+		side.canvas = document.createElement('canvas');
+		side.canvas.width = side.w;
+		side.canvas.height = side.h;
 		side.canvas.className = name;
-		//side.ctx = side.canvas.getContext('2d');
-		side.canvas.textContent = '['+name+']';
+		side.ctx = side.canvas.getContext('2d');
 
 		function replaceMap(str, map) {
 			for (s in map)
