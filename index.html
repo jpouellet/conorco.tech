@@ -10,12 +10,9 @@ body {
 	perspective-origin: 50% 100px;
 	height: 300px;
 	margin: 50px;
-	position: relative;
 }
 .box {
-	position: relative;
-	margin: auto;
-	margin-top: 200px;
+	position: absolute;
 	width: 0px;
 	transform-style: preserve-3d;
 }
@@ -38,7 +35,6 @@ body {
 function Box(l,w,h) {
 	var box = document.createElement('div');
 	box.className = 'box';
-	box.style.border = '2px solid blue';
 	var sides = {
 		left: {w: l, h: h, xform: 'T3d(-W,-H,-L) RY(-90D)'},
 		right: {w: l, h: h, xform: 'T3d(W,-H,L) RY(90D)'},
@@ -114,10 +110,12 @@ function randRot3d(angle) {
 	return 'rotate3d('+vector+', '+angle+')';
 }
 
-addEventListener('DOMContentLoaded', function() {
+addEventListener('click', function(e) {
 	function randLWH() { return (Math.random() * 2 + 1) * 100; }
 	var box = new Box(randLWH(), randLWH(), randLWH());
-	document.body.appendChild(box);
+
+	box.style.left = e.clientX+'px';
+	box.style.top = e.clientY+'px';
 
 	var offset = randRot3d();
 	var hz = (Math.random()/2 + Math.random()) * Math.random();
@@ -126,6 +124,8 @@ addEventListener('DOMContentLoaded', function() {
 		{transform: [randRot3d('0turn'), offset].join(' ')},
 		{transform: [randRot3d('1turn'), offset].join(' ')}
 	], {duration: 1000 / hz, iterations: Infinity});
+
+	document.body.appendChild(box);
 });
 </script>
 
