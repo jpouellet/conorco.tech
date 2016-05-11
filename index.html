@@ -2,15 +2,50 @@
 <html>
 <head>
 
-<title>ConorCo Solutions Ltd.</title>
+<title>ConorCo Industries Ltd.</title>
 
 <style>
 body {
 	perspective: 1200px;
 	perspective-origin: 50% 100px;
-	height: 300px;
-	margin: 50px;
+	overflow: hidden;
 }
+body, html {
+	display: table;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+}
+
+@font-face {
+	font-family: 'industrial';
+	/* from http://www.1001fonts.com/messing-lettern-font.html */
+	src: url('messing-lettern.ttf');
+}
+@font-face {
+	font-family: 'typewriter';
+	/* from http://www.1001fonts.com/pelkistettya-todellisuutta-font.html */
+	src: url('pelkistettya-todellisuutta.ttf');
+}
+
+.company {
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+}
+h1, h2 {
+	margin: 0px;
+	font-weight: normal;
+}
+h1 {
+	font-family: 'industrial';
+	font-size: 120px;
+}
+h2 {
+	font-family: 'typewriter';
+	font-size: 59px;
+}
+
 .box {
 	position: absolute;
 	width: 0px;
@@ -140,7 +175,10 @@ addEventListener('click', function(e) {
 </head>
 <body>
 
-<h1 style="text-align: center;">Coming soon!<sup>&trade;</sup></h1>
+<div class="company">
+	<h1>ConorCo Industries Ltd.</h1>
+	<h2>Engineering solutions, one box at a time.</h2>
+</div>
 
 </body>
 </html>
