@@ -20,12 +20,12 @@ body, html {
 @font-face {
 	font-family: 'industrial';
 	/* from http://www.1001fonts.com/messing-lettern-font.html */
-	src: url('messing-lettern.ttf');
+	src: url('fonts/messing-lettern.ttf');
 }
 @font-face {
 	font-family: 'typewriter';
 	/* from http://www.1001fonts.com/pelkistettya-todellisuutta-font.html */
-	src: url('pelkistettya-todellisuutta.ttf');
+	src: url('fonts/pelkistettya-todellisuutta.ttf');
 }
 
 .company {
@@ -99,6 +99,9 @@ function randRot3d(angle) {
 }
 
 function Box(l,w,h) {
+	this.l = l;
+	this.w = w;
+	this.h = h;
 	this.box = document.createElement('div');
 	this.box.className = 'box';
 	this.sides = {
@@ -154,6 +157,56 @@ Box.prototype.spin = function(hz) {
 	], {duration: 1000 / hz, iterations: Infinity});
 	return spin;
 };
+Box.prototype.decorate = function(source, uvs) {
+	var that = this;
+	var box = this.box;
+	var sides = this.sides;
+	for (side in uvs) {
+		var ctx = sides[side].ctx;
+		uvs[side].forEach(function(uv) {
+			var s = uv.s || [];
+			var d = uv.d || [];
+			var dx = d[0] || 0;
+			var dy = d[1] || 0;
+			var dw = d[2] || ctx.canvas.width - dx;
+			var dh = d[3] || ctx.canvas.height - dy;
+			var sx = s[0] || 0;
+			var sy = s[1] || 0;
+			var sw = s[2] || source.width - sx;
+			var sh = s[3] || source.width - sx;
+			ctx.drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh);
+		});
+	}
+};
+Box.prototype.wrap = function(texture, scale) {
+	scale |= 1;
+	var that = this;
+	function srcUV(side) {
+		var w = that.sides[side].w * scale;
+		var h = that.sides[side].h * scale;
+		if (w > texture.width) w = texture.width;
+		if (h > texture.height) h = texture.height;
+		var x = Math.random() * (texture.width - w);
+		var y = Math.random() * (texture.height - h);
+		return [x, y, w, h];
+	}
+	that.decorate(texture, {
+		left: [{s:srcUV('left')}],
+		right: [{s:srcUV('right')}],
+		front: [{s:srcUV('front')}],
+		back: [{s:srcUV('back')}],
+		top: [{s:srcUV('top')}],
+		bottom: [{s:srcUV('bottom')}],
+	});
+};
+
+/* Royalty-free images from lostandtaken.com. */
+var cardboards = [];
+for (i = 1; i <= 9; i++) {
+	var img = new Image();
+	img.src = 'cardboards/'+i+'.jpg';
+	cardboards.push(img);
+}
 
 addEventListener('click', function(e) {
 	function randLWH() { return (Math.random() * 2 + 1) * 100; }
@@ -162,9 +215,11 @@ addEventListener('click', function(e) {
 	box.box.style.left = e.clientX+'px';
 	box.box.style.top = e.clientY+'px';
 
-	var hz = (Math.random()/2 + Math.random()) * Math.random();
+	var cardboard = cardboards[Math.floor(Math.random()*cardboards.length)];
+	box.wrap(cardboard, 2);
 
 	box.reorient();
+	var hz = (Math.random()/2 + Math.random()) * Math.random();
 	box.spin(hz);
 
 	document.body.appendChild(box.box);
