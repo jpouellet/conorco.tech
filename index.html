@@ -167,6 +167,8 @@ Box.prototype.decorate = function(source, uvs) {
 	for (side in uvs) {
 		var ctx = sides[side].ctx;
 		uvs[side].forEach(function(uv) {
+			cw = ctx.canvas.width;
+			ch = ctx.canvas.height;
 			var s = uv.s || [];
 			var d = uv.d || [];
 			var dx = d[0] || 0;
@@ -177,7 +179,15 @@ Box.prototype.decorate = function(source, uvs) {
 			var sy = s[1] || 0;
 			var sw = s[2] || source.width - sx;
 			var sh = s[3] || source.width - sx;
+			if (uv.r) {
+				ctx.save();
+				ctx.translate(cw/2, ch/2);
+				ctx.rotate(uv.r);
+				ctx.translate(-cw/2, -ch/2);
+			}
 			ctx.drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh);
+			if (uv.r)
+				ctx.restore();
 		});
 	}
 };
@@ -202,14 +212,79 @@ Box.prototype.wrap = function(texture, scale) {
 		bottom: [{s:srcUV('bottom')}],
 	});
 };
+Box.prototype.tape = function(texture, width, start, stop, startAcross, stopAcross) {
+	var that = this;
+	var can = document.createElement('canvas');
+	var ctx = can.getContext('2d');
+	function toPx(len) {
+		var fulls = Math.floor(len);
+		var partial = len - fulls;
+		var fronts = Math.ceil(fulls / 2);
+		var tops = Math.floor(fulls / 2);
+		var partialPx = partial * (fronts > tops ? that.l : that.h);
+		var px = fronts * that.h + tops * that.l + partialPx;
+		return px;
+	}
+	var pxAround = toPx(stop) - toPx(start);
+	var pxAcross = this.w * (stopAcross - startAcross);
+	var len = Math.sqrt(pxAround*pxAround + pxAcross*pxAcross);
+	var theta = Math.atan2(pxAround, pxAcross) - Math.PI/2;
+
+	/* TODO: Could be improved w/ rendered margins. */
+	can.width = this.w;
+	var textureUnitHeight = texture.height * width / texture.width;
+	can.height = toPx(Math.ceil(stop));
+	ctx.save();
+	ctx.translate(startAcross * this.w - width / 2, toPx(start));
+	ctx.rotate(-theta);
+	for (var y = 0; y < len; y += textureUnitHeight - 1) {
+		var remaining = (len - y)/textureUnitHeight;
+		if (remaining > 1) remaining = 1;
+		ctx.drawImage(texture, 0, 0, texture.width, texture.height * remaining, 0, y, width, textureUnitHeight * remaining);
+	}
+	ctx.restore();
+
+	/* XXX FIXME: generalize past stop < 3 */
+	that.decorate(can, {
+		front: [{s:[0, this.h+this.l, this.w, this.h]}],
+		top: [{s:[0, this.h, this.w, this.l]}],
+		back: [{s:[0, 0, this.w, this.h], r:Math.PI}],
+	});
+};
+
+function AssetCollection(init) {
+	this.array = init || [];
+}
+AssetCollection.prototype.get = function(ind) {
+	if (ind === undefined)
+		return this.array[Math.floor(Math.random()*this.array.length)];
+	else
+		return this.array[ind];
+};
+AssetCollection.prototype.getAll = function() {
+	return this.array.slice();
+};
+AssetCollection.prototype.add = function(x) {
+	this.array.push(x);
+};
+
+var Assets = {};
 
 /* Royalty-free images from lostandtaken.com. */
-var cardboards = [];
+Assets.cardboards = new AssetCollection();
 for (i = 1; i <= 9; i++) {
 	var img = new Image();
 	img.src = 'cardboards/'+i+'.jpg';
-	cardboards.push(img);
+	Assets.cardboards.add(img);
 }
+
+Assets.tapes = new AssetCollection([
+	'amazonprime.jpg', /* Just rotated amazon's official logo a bit. */
+].map(function(tape) {
+	var img = new Image();
+	img.src = 'tapes/'+tape;
+	return img;
+}));
 
 addEventListener('click', function(e) {
 	function randLWH() { return (Math.random() * 2 + 1) * 100; }
@@ -218,12 +293,19 @@ addEventListener('click', function(e) {
 	box.box.style.left = e.clientX+'px';
 	box.box.style.top = e.clientY+'px';
 
-	var cardboard = cardboards[Math.floor(Math.random()*cardboards.length)];
+	var cardboard = Assets.cardboards.get();
 	box.wrap(cardboard, 2);
 
 	box.reorient();
 	var hz = (Math.random()/2 + Math.random()) * Math.random();
 	box.spin(hz);
+
+	var tapeWidth = 60; /* px */
+	var tapeVariance = 0.1; /* percent of box-width */
+	var tapeHang = 0.25; /* percent of box-height */
+	box.tape(Assets.tapes.get(), tapeWidth, 1-tapeHang, 2+tapeHang,
+	    (1-tapeVariance)/2 + Math.random() * tapeVariance,
+	    (1-tapeVariance)/2 + Math.random() * tapeVariance);
 
 	document.body.appendChild(box.box);
 });
