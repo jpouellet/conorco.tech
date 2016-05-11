@@ -286,12 +286,115 @@ Assets.tapes = new AssetCollection([
 	return img;
 }));
 
-addEventListener('click', function(e) {
-	function randLWH() { return (Math.random() * 2 + 1) * 100; }
-	var box = new Box(randLWH(), randLWH(), randLWH());
+/*
+ * Actual amazon box sizes.
+ * Derived from https://incompetech.com/gallimaufry/amazonboxes.html with:
+ *
+ * var t = document.querySelector('table');
+ * var boxSizes = [];
+ * Array.prototype.forEach.call(t.querySelectorAll('tr'), function(x) {
+ *   var name = x.children[0].textContent;
+ *   var dim = x.children[1].textContent.split('x').map(function(s){return parseInt(s);});
+ *   if (dim.length === 3)
+ *     boxSizes.push({name:name, x:dim[0], y:dim[1], z:dim[2]});
+ * });
+ * JSON.stringify(boxSizes).replace(/},{/g, '},\n{');
+ */
+Assets.amznBoxSizes = new AssetCollection([
+{"name":"0A0","x":9,"y":6,"z":2},
+{"name":"A0 (BR0)","x":10,"y":7,"z":2},
+{"name":"A1 (BH0, BY0)","x":10,"y":7,"z":3},
+{"name":"A1","x":10,"y":7,"z":3},
+{"name":"A3 (BH1, BY1)","x":10,"y":7,"z":5},
+{"name":"A3","x":12,"y":9,"z":3},
+{"name":"A4","x":12,"y":8,"z":7},
+{"name":"1A1 (BY2)","x":11,"y":8,"z":4},
+{"name":"1A3 (BY4)","x":12,"y":9,"z":3},
+{"name":"1A5 (B45,BF5)","x":13,"y":11,"z":4},
+{"name":"1A7 (B47,BF7)","x":14,"y":8,"z":7},
+{"name":"1A9 (B48)","x":14,"y":12,"z":9},
+{"name":"1AB (BFA)","x":14,"y":9,"z":6},
+{"name":"1AC (B7N)","x":13,"y":11,"z":9},
+{"name":"1AD (BY8)","x":13,"y":9,"z":3},
+{"name":"1AE (BY9)","x":13,"y":10,"z":8},
+{"name":"1BG ","x":18,"y":21,"z":5},
+{"name":"BP1 (V4)","x":13,"y":9,"z":2},
+{"name":"2A5","x":20,"y":11,"z":4},
+{"name":"2A6","x":21,"y":17,"z":10},
+{"name":"2A7","x":24,"y":17,"z":4},
+{"name":"2A8","x":26,"y":19,"z":9},
+{"name":"3A1","x":31,"y":20,"z":10},
+{"name":"B0 (BS2)","x":17,"y":12,"z":11},
+{"name":"B0","x":17,"y":11,"z":11},
+{"name":"B05","x":22,"y":15,"z":5},
+{"name":"B11","x":28,"y":16,"z":6},
+{"name":"B14","x":24,"y":18,"z":8},
+{"name":"1B2","x":15,"y":12,"z":3},
+{"name":"1B4 (B4D, BFD)","x":17,"y":14,"z":8},
+{"name":"1B4","x":17,"y":13,"z":8},
+{"name":"1B9","x":18,"y":9,"z":7},
+{"name":"1B9 (B4E, BFE)","x":18,"y":9,"z":9},
+{"name":"1BA (B4F, BFF)","x":19,"y":12,"z":11},
+{"name":"1BB (B4G, BFG)","x":19,"y":14,"z":12},
+{"name":"1BF","x":19,"y":14,"z":3},
+{"name":"2BB","x":22,"y":16,"z":14},
+{"name":"2B4","x":14,"y":17,"z":3},
+{"name":"BM2","x":12,"y":9,"z":2},
+{"name":"BM3","x":12,"y":9,"z":5},
+{"name":"BM5","x":12,"y":9,"z":4},
+{"name":"BT9 (S6A)","x":5,"y":5,"z":35},
+{"name":"C1","x":19,"y":13,"z":4},
+{"name":"C2","x":19,"y":13,"z":5},
+{"name":"C3","x":19,"y":13,"z":8},
+{"name":"C3","x":19,"y":13,"z":7},
+{"name":"C4","x":19,"y":13,"z":12},
+{"name":"C4","x":19,"y":13,"z":11},
+{"name":"D4","x":22,"y":18,"z":12},
+{"name":"E1","x":16,"y":9,"z":4},
+{"name":"E4","x":16,"y":12,"z":4},
+{"name":"E6","x":16,"y":12,"z":8},
+{"name":"F3","x":26,"y":19,"z":8},
+{"name":"J7 (B7H)","x":40,"y":5,"z":5},
+{"name":"J7A","x":52,"y":5,"z":5},
+{"name":"K3 (B42)","x":18,"y":13,"z":6},
+{"name":"K4 (B5E)","x":19,"y":13,"z":8},
+{"name":"K89","x":44,"y":10,"z":10},
+{"name":"n3","x":15,"y":11,"z":5},
+{"name":"N3 (B41, BF1, BJ0)","x":16,"y":12,"z":5},
+{"name":"P1 (BS5)","x":21,"y":15,"z":6},
+{"name":"P2 ","x":20,"y":17,"z":15},
+{"name":"P4 (BS8)","x":26,"y":16,"z":7},
+{"name":"P5 ","x":25,"y":20,"z":16},
+{"name":"P7 (BSB)","x":28,"y":19,"z":8},
+{"name":"PA","x":20,"y":13,"z":12},
+{"name":"PB (BCS)","x":23,"y":15,"z":12},
+{"name":"Q2","x":34,"y":22,"z":13},
+{"name":"Q3","x":36,"y":10,"z":3},
+{"name":"Q4","x":20,"y":37,"z":3},
+{"name":"Q5","x":30,"y":37,"z":3},
+{"name":"S5 (B44)","x":22,"y":18,"z":12},
+{"name":"S6A (BT8)","x":35,"y":5,"z":5},
+{"name":"S8 (B7M)","x":26,"y":15,"z":4},
+{"name":"U0 (BSG)","x":40,"y":12,"z":9},
+{"name":"U1 (BCS - B7T)","x":40,"y":10,"z":5},
+{"name":"U2 (BFR)","x":40,"y":22,"z":16},
+{"name":"W01 (BDA)","x":10,"y":8,"z":6},
+{"name":"W02 (BDB)","x":12,"y":11,"z":8},
+{"name":"Z1","x":12,"y":9,"z":4},
+{"name":"Z4","x":16,"y":12,"z":6},
+{"name":"Z05","x":16,"y":10,"z":10},
+{"name":"Z06","x":16,"y":14,"z":10},
+{"name":"Z13","x":13,"y":9,"z":5},
+{"name":"Z16","x":16,"y":14,"z":6}
+]);
 
-	box.box.style.left = e.clientX+'px';
-	box.box.style.top = e.clientY+'px';
+function makeAmazonBox(domX, domY) {
+	var boxSize = Assets.amznBoxSizes.get();
+	var scale = 10;
+	var box = new Box(boxSize.x*scale, boxSize.y*scale, boxSize.z*scale);
+
+	box.box.style.left = domX+'px';
+	box.box.style.top = domY+'px';
 
 	var cardboard = Assets.cardboards.get();
 	box.wrap(cardboard, 2);
@@ -308,6 +411,10 @@ addEventListener('click', function(e) {
 	    (1-tapeVariance)/2 + Math.random() * tapeVariance);
 
 	document.body.appendChild(box.box);
+}
+
+addEventListener('click', function(e) {
+	makeAmazonBox(e.clientX, e.clientY);
 });
 
 </script>
