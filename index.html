@@ -404,11 +404,13 @@ function makeAmazonBox(domX, domY) {
 	box.spin(hz);
 
 	var tapeWidth = 60; /* px */
-	var tapeVariance = 0.1; /* percent of box-width */
+	var tapeVariance = 0.05; /* percent of box-width */
 	var tapeHang = 0.25; /* percent of box-height */
 	box.tape(Assets.tapes.get(), tapeWidth, 1-tapeHang, 2+tapeHang,
 	    (1-tapeVariance)/2 + Math.random() * tapeVariance,
 	    (1-tapeVariance)/2 + Math.random() * tapeVariance);
+
+	box.box.setAttribute('title', boxSize.name);
 
 	document.body.appendChild(box.box);
 }
